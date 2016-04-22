@@ -1,11 +1,18 @@
 
 public class Miner {
-
+public int blockchain = 0;	//amount of blocks known that have not been added
+public int blocksWon = 0;	//amount of blocks that have been added to the main chain. This might get fucky with eclipse attacks
+public int miningPower = 0;
 	/* Begin attempting to discover a block on the chain. Each miner
-	 *  is constantly guessing a random number. When it hits the correct
+	 *  is constantly guessing a random number (goal). When it hits the correct
 	 *  number, it is rewarded with a block.
+	 *  This code might actually be contained in the other file
 	 */
-	public void mineBlocks() {
+	public Miner(int miningPower){
+		this.miningPower = miningPower;
+		
+	}
+	public void mineBlocks(int goal) {
 		
 	}
 	
@@ -13,6 +20,24 @@ public class Miner {
 	 * 
 	 */
 	public void findConnections() {
+		
+	}
+	/*announce all found blocks to connections
+	 * 
+	 */
+	public void announceBlocks(){
+		
+	}
+	/* when told of a block by a fellow connection, spread the good news
+	 * to all other connections
+	 */
+	public void spreadAnouncement(){
+		
+	}
+	/*miner has hit the goal
+	 * 
+	 */
+	public void won(){
 		
 	}
 }
