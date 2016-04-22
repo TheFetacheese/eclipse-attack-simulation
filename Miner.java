@@ -1,6 +1,7 @@
 
 public class Miner {
-public int blockchain = 0;	//amount of blocks known that have not been added
+public int mainBlockchain = 0; //what this miner believes the main blockchain to be
+public int ownBlockchain = 0;	//amount of blocks known that have not been added
 public int blocksWon = 0;	//amount of blocks that have been added to the main chain. This might get fucky with eclipse attacks
 public int miningPower = 0;
 	/* Begin attempting to discover a block on the chain. Each miner
@@ -10,6 +11,9 @@ public int miningPower = 0;
 	 */
 	public Miner(int miningPower){
 		this.miningPower = miningPower;
+		for (int i=0; i < miningPower; i++) {
+			
+		}
 		
 	}
 	public void mineBlocks(int goal) {
