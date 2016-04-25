@@ -16,7 +16,7 @@ public class Miner {
 		for (int i=0; i < miningPower; i++) {
 			
 		}
-		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) * ~miningPower); //minor bitwish hashing; should be sufficient at preventing collisions with a respectable sample size
+		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
 		findConnections();
 	}
 	public void mineBlocks(int goal) {
