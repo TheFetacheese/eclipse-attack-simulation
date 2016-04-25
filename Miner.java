@@ -12,7 +12,7 @@ public class Miner {
 	 *  number, it is rewarded with a block.
 	 *  This code might actually be contained in the other file
 	 */
-	public Miner(int miningPower){
+	public Miner(int miningPower){ //TODO: add a unique ID (IP address?)
 		this.miningPower = miningPower;
 		for (int i=0; i < miningPower; i++) {
 			
