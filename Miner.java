@@ -12,7 +12,7 @@ public class Miner {
 	 *  number, it is rewarded with a block.
 	 *  This code might actually be contained in the other file
 	 */
-	public Miner(int miningPower, Queue pool){
+	public Miner(int miningPower){
 		this.miningPower = miningPower;
 		for (int i=0; i < miningPower; i++) {
 			
@@ -27,7 +27,7 @@ public class Miner {
 	 * 
 	 */
 	public void findConnections(Queue pool) {
-            if(connectionCount < 6 && pool.peek() != null) {
+            if(connectionCount < 6 && pool.peek() != null && pool.peek() != this) {
                 Miner m = pool.peek();
                 //search for this Miner node in our present connections
                 boolean newNode = true;
@@ -39,13 +39,15 @@ public class Miner {
                         break;
                     }
                 }
+                pool.dequeue();
                 if(newNode)
                 {
-                    pool.dequeue();
                     this.connections[this.connectionCount] = m.getID();
                     this.connectionCount++;
                     m.addConnection(this);
                 }
+                else
+                    findConnections(pool);
             }
 	}
         
