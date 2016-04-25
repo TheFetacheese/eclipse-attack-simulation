@@ -1,4 +1,3 @@
-
 public class Miner {
 public int mainBlockchain = 0; //what this miner believes the main blockchain to be
 public int ownBlockchain = 0;	//amount of blocks known that have not been added
@@ -20,13 +19,13 @@ public int miningPower = 0;
 		
 	}
 	
-	/*not sure how I want this to work yet
+	/* not sure how I want this to work yet
 	 * 
 	 */
 	public void findConnections() {
 		
 	}
-	/*announce all found blocks to connections
+	/* announce all found blocks to connections
 	 * 
 	 */
 	public void announceBlocks(){
