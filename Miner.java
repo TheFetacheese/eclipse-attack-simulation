@@ -5,19 +5,19 @@ public class Miner {
 	public int miningPower = 0;
 
 	private long[] connections = new long[6]; //arbitrarily set to have each miner have at most 6 connections. IDs of other Miners will be stored in here.
+	private int connectionCount = 0;
 	private final long ID;
 	/* Begin attempting to discover a block on the chain. Each miner
 	 *  is constantly guessing a random number (goal). When it hits the correct
 	 *  number, it is rewarded with a block.
 	 *  This code might actually be contained in the other file
 	 */
-	public Miner(int miningPower){
+	public Miner(int miningPower, Queue pool){
 		this.miningPower = miningPower;
 		for (int i=0; i < miningPower; i++) {
 			
 		}
 		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
-		findConnections();
 	}
 	public void mineBlocks(int goal) {
 		
@@ -26,9 +26,37 @@ public class Miner {
 	/* not sure how I want this to work yet
 	 * 
 	 */
-	public void findConnections() {
-		
+	public void findConnections(Queue pool) {
+            if(connectionCount < 6 && pool.peek() != null) {
+                Miner m = pool.peek();
+                //search for this Miner node in our present connections
+                boolean newNode = true;
+                for(long l : this.connections)
+                {
+                    if(m.getID() == l)
+                    {
+                        newNode = false;
+                        break;
+                    }
+                }
+                if(newNode)
+                {
+                    pool.dequeue();
+                    this.connections[this.connectionCount] = m.getID();
+                    this.connectionCount++;
+                    m.addConnection(this);
+                }
+            }
 	}
+        
+        /*
+        * Another miner has found this miner on the pool Queue; establish a connection to him/her!
+        */
+        public void addConnection(Miner m)
+        {
+            this.connections[this.connectionCount] = m.getID();
+            this.connectionCount++;
+        }
 	/* announce all found blocks to connections
 	 * 
 	 */
@@ -54,5 +82,15 @@ public class Miner {
 	public long getID()
 	{
 		return this.ID;
+	}
+        
+        public int getConnectionCount()
+        {
+            return this.connectionCount;
+        }
+	
+	public long[] getConnections()
+	{
+		return this.connections;
 	}
 }

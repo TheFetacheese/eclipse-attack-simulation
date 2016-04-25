@@ -1,6 +1,6 @@
 import java.util.Iterator;
 
-public class Queue<T> implements Iterable<T> {
+public class Queue<T extends Miner> implements Iterable<T> {
     private Node<T> first;    // beginning of queue
     private Node<T> last;     // end of queue
     private int N;               // number of elements on queue
@@ -63,15 +63,21 @@ public class Queue<T> implements Iterable<T> {
     }
 
     /**
-     * Removes and returns the item on this queue that was least recently added.
+     * Removes and returns the item on this queue that was least recently added. Only removes if that item is connected to 5 or more other items, otherwise it gets placed at the end of the queue.
      *
      * @return the item on this queue that was least recently added or null if the queue is empty
      */
     public T dequeue() {
         if (isEmpty()) return null;
         T item = first.item;
-        first = first.next;
-        N--;
+        if(item.getConnectionCount() < 5) {
+            first = first.next;
+            this.enqueue(item);
+        }
+        else {
+            first = first.next;
+            N--;
+        }
         if (isEmpty()) last = null;   // to avoid loitering
         return item;
     }
@@ -83,7 +89,7 @@ public class Queue<T> implements Iterable<T> {
      */
     @Override
     public Iterator<T> iterator()  {
-        return new ListIterator<T>(first){};  
+        return new ListIterator<>(first);  
     }
     private class ListIterator<T> implements Iterator<T> {
         private Node<T> current;
