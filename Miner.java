@@ -30,7 +30,9 @@ public class Miner {
     	return this.ipAddress.split(".")[0]+this.ipAddress.split(".")[1];  
     }
   
-  	long l = (addr.getID() ^ (~Long.parseLong(addr.get16Prefix(), 36) / Long.parseLong(src.get16Prefix(), 36))) % 32;
+  	public void addToNewTable(Miner addr, Miner src)
+    {
+    	long l = (addr.getID() ^ (~Long.parseLong(addr.get16Prefix(), 36) / Long.parseLong(src.get16Prefix(), 36))) % 32;
       	int Bucket = new Long(addr.getID() * Long.parseLong(addr.get16Prefix(), 36) * l).hashCode() % 256;
       	boolean check = false;
       	for(int i = 0; i < newTable[Bucket].length; i++)
@@ -75,6 +77,7 @@ public class Miner {
           		newTable[Bucket][tmp] = new Tuple(System.currentTimeMillis(), addr);
             }
         }
+    }
   
   	public void addToTriedTable(Miner m)
     {
