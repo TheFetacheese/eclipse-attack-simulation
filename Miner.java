@@ -12,7 +12,7 @@ public class Miner {
   	private Tuple[][] newTable = new Tuple[256][64];
   	private int newCount = 0;
   	
-  	private boolean isTrash;
+  	private boolean isTrash = false;
 	
 	private Miner[] connections = new Miner[8]; 
 	private int connectionCount = 0;
@@ -29,16 +29,6 @@ public class Miner {
       		this.ipAddress = IP;
       		this.rand = r;
 		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
-		this.isTrash = false;
-	}
-	
-	public Miner(int miningPower, String IP, Random r, boolean b)
-	{
-		this.miningPower = miningPower;
-      		this.ipAddress = IP;
-      		this.rand = r;
-		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
-		this.isTrash = b;
 	}
   
   	public String get16Prefix()
@@ -147,7 +137,8 @@ public class Miner {
 	{
         	if(this.hasAllConnections())
         		return;
-		findConnectionsHelper(0);
+        	for(int i = connectionCount; i < connections.length; i++)
+			findConnectionsHelper(0);
         }
         
         public void findConnectionsHelper(int r)
@@ -254,6 +245,14 @@ public class Miner {
         public boolean isTrash()
         {
         	return this.isTrash;
+        }
+        
+        public void reset()
+        {
+        	for(int i = 0; i < connections.length; i++)
+        		connections[i] = null;
+        	connectionCount = 0;
+        	findConnections();
         }
         
     	/* announce all found blocks to connections
