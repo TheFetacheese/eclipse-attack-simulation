@@ -1,30 +1,81 @@
 public class Miner {
+  	public Random rand;
 	public int mainBlockchain = 0; //what this miner believes the main blockchain to be
 	public int ownBlockchain = 0;	//amount of blocks known that have not been added
 	public int blocksWon = 0;	//amount of blocks that have been added to the main chain. This might get fucky with eclipse attacks
 	public int miningPower = 0;
+  
+  	private Tuple[][] triedTable = new Tuple[64][64];
+  	private Tuple[][] newTable = new Tuple[256][64];
 	
-	private long[] connections = new long[8]; //arbitrarily set to have each miner have at most 6 connections. IDs of other Miners will be stored in here.
+	private long[] connections = new long[8]; 
 	private int connectionCount = 0;
 	private final long ID;
+  	private String ipAddress;
+  
 	/* Begin attempting to discover a block on the chain. Each miner
 	 *  is constantly guessing a random number (goal). When it hits the correct
 	 *  number, it is rewarded with a block.
 	 *  This code might actually be contained in the other file
 	 */
-	public Miner(int miningPower){ //TODO: add a unique ID (IP address?)
+	public Miner(int miningPower, String IP, Random r){ //TODO: add a unique ID (IP address?)
 		this.miningPower = miningPower;
-		for (int i=0; i < miningPower; i++) {
-			
-		}
+      	this.ipAddress = IP;
+      	this.rand = r;
 		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
 	}
+  
+  	public String get16Prefix()
+    {
+    	return this.ipAddress.split(".")[0]+this.ipAddress.split(".")[1];  
+    }
+  
+  	public void addToNewTable(Miner addr, Miner src)
+    {
+    	  
+    }
+  
+  	public void addToTriedTable(Miner m)
+    {
+    	long l = m.getID() ^ Long.parseLong(m.getIPAddress(), 36) % 4;
+      	int Bucket = new Long((m.getID() * Long.parseLong(m.get16Prefix(), 36) * l)).hashCode() % 64;
+      	boolean check = false;
+      	for(int i = 0; i < triedTable[Bucket].length; i++)
+        {
+        	if(triedTable[Bucket][i] == null)
+            {
+              	triedTable[Bucket][i] = new Tuple(System.currentTimeMillis(), m);
+              	check = true;
+              	break;
+            }
+        }
+      	if(check)
+        	return;
+      	else //bitcoin eviction
+        {
+          	Tuple temp = new Tuple(0, null);
+          	int tmp = 0;
+          	for(int i = 0; i < 4; i++)
+            {
+             	int j = rand.nextInt(64);
+              	Tuple t = triedTable[Bucket][j];
+              	if(t.getTimestamp() > temp.getTimestamp())
+                {
+                  	temp = t;
+                  	tmp = j;
+                }
+            }
+          	this.addToNewTable(temp.getMiner(), this);
+          	triedTable[Bucket][tmp] = new Tuple(System.currentTimeMillis(), m);
+        }
+    }
+  
 	public void mineBlocks(int goal) {
 		
 	}
 	
 	public boolean hasAllConnections(){
-		if(true){ //TODO: all connections must be filled
+		if(connectionCount==8){ 
 			return true;
 		}
 		return false;
@@ -33,39 +84,18 @@ public class Miner {
 	/* not sure how I want this to work yet
 	 * 
 	 */
-	public void findConnections(Queue pool) {
-            if(connectionCount < 8 && pool.peek() != null && pool.peek() != this) {
-                Miner m = pool.peek();
-                //search for this Miner node in our present connections
-                boolean newNode = true;
-                for(long l : this.connections)
-                {
-                    if(m.getID() == l)
-                    {
-                        newNode = false;
-                        break;
-                    }
-                }
-                pool.dequeue();
-                if(newNode)
-                {
-                    this.connections[this.connectionCount] = m.getID();
-                    this.connectionCount++;
-                    m.addConnection(this);
-                }
-                else
-                    findConnections(pool);
-            }
+	public void findConnections() {
+            
 	}
         
-        /*
-        * Another miner has found this miner on the pool Queue; establish a connection to him/her!
-        */
-        public void addConnection(Miner m)
-        {
-            this.connections[this.connectionCount] = m.getID();
-            this.connectionCount++;
-        }
+    /*
+    * Another miner has found this miner on the pool Queue; establish a connection to him/her!
+    */
+    private void addConnection(Miner m)
+    {
+    	this.connections[this.connectionCount] = m.getID();
+        this.connectionCount++;
+    }
 	/* announce all found blocks to connections
 	 * 
 	 */
@@ -92,11 +122,16 @@ public class Miner {
 	{
 		return this.ID;
 	}
+  
+  	public String getIPAddress()
+    {
+    	return this.ipAddress;  
+    }
         
-        public int getConnectionCount()
-        {
-            return this.connectionCount;
-        }
+    public int getConnectionCount()
+    {
+        return this.connectionCount;
+    }
 	
 	public long[] getConnections()
 	{
