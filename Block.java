@@ -1,5 +1,5 @@
 
-public class BlockchainNode {
+public class Block {
 
 	public int nonce;
 	public int winner;
