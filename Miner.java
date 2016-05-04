@@ -30,10 +30,51 @@ public class Miner {
     	return this.ipAddress.split(".")[0]+this.ipAddress.split(".")[1];  
     }
   
-  	public void addToNewTable(Miner addr, Miner src)
-    {
-    	  
-    }
+  	long l = (addr.getID() ^ (~Long.parseLong(addr.get16Prefix(), 36) / Long.parseLong(src.get16Prefix(), 36))) % 32;
+      	int Bucket = new Long(addr.getID() * Long.parseLong(addr.get16Prefix(), 36) * l).hashCode() % 256;
+      	boolean check = false;
+      	for(int i = 0; i < newTable[Bucket].length; i++)
+        {
+        	if(newTable[Bucket][i] == null)
+            {
+            	newTable[Bucket][i] = new Tuple(System.currentTimeMillis(), addr);
+              	check = true;
+              	break;
+            }
+        }
+      	if(check)
+        	return;
+      	else //isTerrible + eviction
+        {
+          	boolean check2 = false;
+        	for(int i = 0; i < newTable[Bucket].length; i++)
+            {
+            	if(System.currentTimeMillis() - newTable[Bucket][i].getTimestamp() > 60000) //if this address has been sitting in here for A WHOLE MINUTE...
+                {
+                	newTable[Bucket][i] = new Tuple(System.currentTimeMillis(), addr);
+                  	check2 = true;
+                  	break;
+                }
+            }
+          	if(check2)
+              	return;
+          	else
+            {
+            	Tuple temp = new Tuple(0, null);
+          		int tmp = 0;
+          		for(int i = 0; i < 4; i++)
+            	{
+             		int j = rand.nextInt(64);
+              		Tuple t = newTable[Bucket][j];
+              		if(t.getTimestamp() > temp.getTimestamp())
+                	{
+                  		temp = t;
+                  		tmp = j;
+                	}
+            	}
+          		newTable[Bucket][tmp] = new Tuple(System.currentTimeMillis(), addr);
+            }
+        }
   
   	public void addToTriedTable(Miner m)
     {
