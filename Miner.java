@@ -4,6 +4,7 @@ public class Miner {
 	public int ownBlockchain = 0;	//amount of blocks known that have not been added
 	public int blocksWon = 0;	//amount of blocks that have been added to the main chain. This might get fucky with eclipse attacks
 	public int miningPower = 0;
+	public Blockchain myBlockchain;
 	
 	public final double networkNoise = 0.0001;
   
@@ -121,9 +122,19 @@ public class Miner {
           		triedTable[Bucket][tmp] = new Tuple(System.currentTimeMillis(), m);
         	}
     	}
-  
+  	public void setBlockchain(){
+		Blockchain<Block> b = new Blockchain<Block>();
+		myBlockchain = b;
+	}
+
 	public void mineBlocks(int goal) {
-		
+		Random rand = new Random();
+		for (int i=0; i < miningPower; i++){
+			if (rand.nextInt(10000000) == goal){
+				won();
+				break;
+			}
+		}
 	}
 	
 	public boolean hasAllConnections(){
@@ -259,19 +270,29 @@ public class Miner {
 	 * 
 	 */
 	public void announceBlocks(){
-		
+		//TODO: create infrastracture to actually compare hashes
+		/* for(int i=0; i< 8; i++){
+		 * 	if (connection partner has a different blockchain hash)
+		 * 	alertPartner()
+		 */
+	
 	}
 	/* when told of a block by a fellow connection, spread the good news
 	 * to all other connections
 	 */
-	public void spreadAnouncement(){
+	public void alertPartner(){
+		/* if (my blockchain > their blockchain)
+		 *  update their blockchain
+		 */
 		
 	}
 	/*miner has hit the goal
 	 * 
 	 */
 	public void won(){
-		
+		ownBlockchain++;
+		blocksWon++;//TODO:remove this at some point
+		announceBlocks();
 	}
 	
 	/**
