@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Random;
 
 public class Miner {
@@ -126,21 +127,20 @@ public class Miner {
           		triedTable[Bucket][tmp] = new Tuple(System.currentTimeMillis(), m);
         	}
     	}
-  	public void setBlockchain(){
-		Blockchain<Block> b = new Blockchain<Block>();
+  	public void setBlockchain(Blockchain<Block> b){
 		myBlockchain = b;
 	}
 
 	public void mineBlocks(int goal) { //TODO star of the show here
 		currentNonce = goal;
-		System.out.println(ID + " is mining");
 		Random rand = new Random();
 		for (int i=0; i < miningPower; i++){
-			if (rand.nextInt(5) == goal){
+			if (rand.nextInt(200) == goal){
 				won();
 				break;
 			}
 		}
+	announceBlocks();
 	}
 	
 	public boolean hasAllConnections(){
@@ -275,13 +275,22 @@ public class Miner {
     	/* announce all found blocks to connections
 	 * 
 	 */
+        
+    public Blockchain<Block> getBlockchain(){
+    	return myBlockchain;
+    }
 	public void announceBlocks(){
-		//TODO: create infrastracture to actually compare hashes
-		/* for(int i=0; i< 8; i++){
-		 * 	if (connection partner has a different blockchain hash)
-		 * 	alertPartner()
-		 */
-	
+
+		for(int i=0; i< connections.length; i++){
+			if(connections[i] != null){
+		 if (connections[i].getBlockchain().hashingValue != myBlockchain.hashingValue){
+			 if (myBlockchain.length > connections[i].getBlockchain().length){
+				 connections[i].setBlockchain(myBlockchain);
+				 System.out.println(connections[i].ID + " now has hash: " + connections[i].getBlockchain().hashingValue);
+			 }
+		 }
+			}
+		}
 	}
 	/* when told of a block by a fellow connection, spread the good news
 	 * to all other connections
@@ -300,6 +309,7 @@ public class Miner {
 		ownBlockchain++;
 		blocksWon++;//TODO:remove this at some point
 		System.out.println(ID +" won and has hash: " +myBlockchain.getHash());
+		System.out.println("Blockchain is now: " + myBlockchain.length);
 		announceBlocks();
 	}
 	
@@ -319,6 +329,15 @@ public class Miner {
     public int getConnectionCount()
     {
         return this.connectionCount;
+    }
+    
+    public void connect(Miner target){
+    	if (Arrays.asList(connections).contains(target) == false && target.hasAllConnections() == false/*&& Arrays.asList(target.connections).contains(this) == false*/){
+    		connections[connectionCount] = target;
+    		target.connections[target.connectionCount] = this;
+    		connectionCount++;
+    		target.connectionCount++;
+    	}
     }
 	
 	/*public long[] getConnections() //TODO IS THIS SUPPOSED TO BE A LONG OR A MINER
