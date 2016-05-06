@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Miner {
   	public Random rand;
 	public int mainBlockchain = 0; //what this miner believes the main blockchain to be
@@ -5,6 +7,7 @@ public class Miner {
 	public int blocksWon = 0;	//amount of blocks that have been added to the main chain. This might get fucky with eclipse attacks
 	public int miningPower = 0;
 	public Blockchain myBlockchain;
+	public int currentNonce;
 	
 	public final double networkNoise = 0.0001;
   
@@ -29,7 +32,8 @@ public class Miner {
 		this.miningPower = miningPower;
       		this.ipAddress = IP;
       		this.rand = r;
-		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
+      		myBlockchain = new Blockchain<Block>();
+		this.ID = Math.abs((System.currentTimeMillis() ^ 0xffffffffffffffffL) & (long)~miningPower -r.nextInt(93710)); //minor bitwise hashing; should be sufficient at preventing collisions with a respectable sample size
 	}
   
   	public String get16Prefix()
@@ -127,10 +131,12 @@ public class Miner {
 		myBlockchain = b;
 	}
 
-	public void mineBlocks(int goal) {
+	public void mineBlocks(int goal) { //TODO star of the show here
+		currentNonce = goal;
+		System.out.println(ID + " is mining");
 		Random rand = new Random();
 		for (int i=0; i < miningPower; i++){
-			if (rand.nextInt(10000000) == goal){
+			if (rand.nextInt(5) == goal){
 				won();
 				break;
 			}
@@ -247,7 +253,7 @@ public class Miner {
         
         public boolean establishConnection(Miner m)
         {
-        	if(m.isTrash() || rand.nextDouble < networkNoise) //1:10000 chance of failing due to network error
+        	if(m.isTrash() || rand.nextDouble() < networkNoise) //1:10000 chance of failing due to network error
         		return false;
         	this.connections[connectionCount++] = m;
         	return true;
@@ -290,8 +296,10 @@ public class Miner {
 	 * 
 	 */
 	public void won(){
+		myBlockchain.addBlock(currentNonce, (int)ID);
 		ownBlockchain++;
 		blocksWon++;//TODO:remove this at some point
+		System.out.println(ID +" won and has hash: " +myBlockchain.getHash());
 		announceBlocks();
 	}
 	
@@ -313,8 +321,8 @@ public class Miner {
         return this.connectionCount;
     }
 	
-	public long[] getConnections()
+	/*public long[] getConnections() //TODO IS THIS SUPPOSED TO BE A LONG OR A MINER
 	{
 		return this.connections;
-	}
+	}*/
 }
